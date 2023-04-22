@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" 4. Add fourth view function that displays var only if is integer """
+""" Add fourth view function that displays var only if is integer """
 
 from flask import Flask
 
