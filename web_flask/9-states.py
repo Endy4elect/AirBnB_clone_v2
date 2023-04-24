@@ -1,36 +1,40 @@
 #!/usr/bin/python3
-""" Script that start flask web app."""
-
+"""Starts a Flask web application.
+The application listens on 0.0.0.0, port 5000.
+Routes:
+    /states: HTML page with a list of all State objects.
+    /states/<id>: HTML page displaying the given state with <id>.
+"""
 from models import storage
-from models.state import State
-from flask import Flask, render_template
-
+from flask import Flask
+from flask import render_template
 
 app = Flask(__name__)
 
 
-@app.route('/states', strict_slashes=False)
-def states_list():
-    """Render list of all states."""
-    states_list = storage.all(State)
-    return render_template(
-            '9-states.html', states=states_list, pass_with_id=False)
+@app.route("/states", strict_slashes=False)
+def states():
+    """Displays an HTML page with a list of all States.
+    States are sorted by name.
+    """
+    states = storage.all("State")
+    return render_template("9-states.html", state=states)
 
 
-@app.route('/states/<id>', strict_slashes=False)
-def states_by_id(id):
-    """Render list of all states."""
-    key = 'State.{}'.format(id)
-    states_list = storage.all(State)
-    state = states_list.get(key)
-    return render_template('9-states.html', state=state, pass_with_id=True)
+@app.route("/states/<id>", strict_slashes=False)
+def states_id(id):
+    """Displays an HTML page with info about <id>, if it exists."""
+    for state in storage.all("State").values():
+        if state.id == id:
+            return render_template("9-states.html", state=state)
+    return render_template("9-states.html")
 
 
 @app.teardown_appcontext
-def close_session(exception=None):
-    """Close the current session."""
+def teardown(exc):
+    """Remove the current SQLAlchemy session."""
     storage.close()
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
